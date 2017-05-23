@@ -1,0 +1,16 @@
+
+version: "3"
+
+services:
+
+  app:
+    build: .
+
+    #image: shakahl/docker-alpine-nginx-rtmp:latest
+    #volumes:
+    #  - ./data:/opt/data
+
+    ports:
+      - 1935:1935
+      - 8088:80
+
