@@ -5,7 +5,9 @@ services:
 
   app:
     build: .
-    image: shakahl/docker-alpine-nginx-rtmp:latest
+    volumes:
+      - ./nginx.conf:/opt/nginx/nginx.conf
+
     ports:
       - 1935:1935
       - 8088:80
