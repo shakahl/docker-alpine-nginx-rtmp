@@ -31,7 +31,8 @@ RUN cd /tmp/nginx-${NGINX_VERSION} \
   --prefix=/opt/nginx \
   --add-module=/tmp/nginx-rtmp-module-${NGINX_RTMP_VERSION} \
   --conf-path=/opt/nginx/nginx.conf --error-log-path=/opt/nginx/logs/error.log --http-log-path=/opt/nginx/logs/access.log \
-  --with-debug
+  --with-debug \
+  --with-http_auth_request_module
 RUN cd /tmp/nginx-${NGINX_VERSION} && make && make install
 
 # ffmpeg dependencies.
