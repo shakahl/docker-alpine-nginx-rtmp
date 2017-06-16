@@ -2,17 +2,20 @@ FROM alpine:3.4
 MAINTAINER Soma Szélpál <szelpalsoma@gmail.com>
 
 ENV NGINX_VERSION 1.13.1
-ENV NGINX_RTMP_VERSION 1.1.11
 ENV NGINX_DEVEL_KIT_VERSION=0.3.0
-ENV LUA_NGINX_MODULE_VERSION=0.10.8
+ENV NGINX_RTMP_MODULE_VERSION 1.1.11
+ENV NGINX_LUA_MODULE_VERSION=0.10.8
 ENV LUAJIT_VERSION=2.0.5
 ENV FFMPEG_VERSION 3.3.1
+ENV LUAROCKS_VERSION 2.4.2
 
 ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.0
 
 ENV NGINX_DEVEL_KIT ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
-ENV LUA_NGINX_MODULE lua-nginx-module-${LUA_NGINX_MODULE_VERSION}
+ENV NGINX_RTMP_MODULE nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
+ENV NGINX_LUA_MODULE lua-nginx-module-${NGINX_LUA_MODULE_VERSION}
+ENV LUAROCKS luarocks-${LUAROCKS_VERSION}
 
 # Common dependencies
 ENV DEPS_COMMON="bash nano lua"
@@ -30,11 +33,14 @@ RUN apk update && apk add --virtual .common-dependencies ${DEPS_COMMON}
 RUN	apk update && apk add --virtual .build-dependencies	${DEPS_BUILD_TOOLS}
 
 # Build Luarocks.
-RUN cd /tmp && git clone https://github.com/keplerproject/luarocks.git \
-  && cd luarocks \
+RUN cd /tmp \
+  && wget https://github.com/luarocks/luarocks/archive/v${LUAROCKS_VERSION}.tar.gz -O ${LUAROCKS}.tar.gz \
+  && tar zxf ${LUAROCKS}.tar.gz \
+  && rm ${LUAROCKS}.tar.gz \
+  && cd ${LUAROCKS} \
   && ./configure \
   && make build install
-RUN rm -rf /tmp/luarocks
+RUN rm -rf /tmp/${LUAROCKS}
 
 # Get LuaJIT.
 RUN cd /tmp \
@@ -50,38 +56,40 @@ RUN cd /tmp \
   && tar zxf nginx-${NGINX_VERSION}.tar.gz \
   && rm nginx-${NGINX_VERSION}.tar.gz
 
-# Get nginx-rtmp module.
-RUN cd /tmp \
-  && wget https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_VERSION}.tar.gz \
-  && tar zxf v${NGINX_RTMP_VERSION}.tar.gz \
-  && rm v${NGINX_RTMP_VERSION}.tar.gz
-
 # Get ngx_devel_kit.
 RUN cd /tmp \
   && wget https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -O ${NGINX_DEVEL_KIT}.tar.gz \
   && tar zxf ${NGINX_DEVEL_KIT}.tar.gz \
   && rm ${NGINX_DEVEL_KIT}.tar.gz
 
+# Get nginx-rtmp module.
+RUN cd /tmp \
+  && wget https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz -O ${NGINX_RTMP_MODULE}.tar.gz \
+  && tar zxf ${NGINX_RTMP_MODULE}.tar.gz \
+  && rm ${NGINX_RTMP_MODULE}.tar.gz
+
 # Get lua-nginx-module.
 RUN cd /tmp \
-  && wget https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -O ${LUA_NGINX_MODULE}.tar.gz \
-  && tar zxf ${LUA_NGINX_MODULE}.tar.gz \
-  && rm ${LUA_NGINX_MODULE}.tar.gz
+  && wget https://github.com/openresty/lua-nginx-module/archive/v${NGINX_LUA_MODULE_VERSION}.tar.gz -O ${NGINX_LUA_MODULE}.tar.gz \
+  && tar zxf ${NGINX_LUA_MODULE}.tar.gz \
+  && rm ${NGINX_LUA_MODULE}.tar.gz
 
 # patch nginx lua compilation error on nginx 1.13 (https://github.com/openresty/lua-nginx-module/issues/1016)
 ADD ./patch/patch-src-ngx_http_lua_headers.c.diff /tmp/
-RUN cd /tmp/${LUA_NGINX_MODULE}/src \
+RUN cd /tmp/${NGINX_LUA_MODULE}/src \
   && patch < /tmp/patch-src-ngx_http_lua_headers.c.diff
 
 # Compile nginx with nginx-rtmp module.
 RUN cd /tmp/nginx-${NGINX_VERSION} \
   && ./configure \
   --prefix=/opt/nginx \
-  --add-module=/tmp/nginx-rtmp-module-${NGINX_RTMP_VERSION} \
   --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" \
   --add-module=/tmp/${NGINX_DEVEL_KIT} \
-  --add-module=/tmp/${LUA_NGINX_MODULE} \
-  --conf-path=/opt/nginx/nginx.conf --error-log-path=/opt/nginx/logs/error.log --http-log-path=/opt/nginx/logs/access.log \
+  --add-module=/tmp/${NGINX_LUA_MODULE} \
+  --add-module=/tmp/${NGINX_RTMP_MODULE} \
+  --conf-path=/opt/nginx/nginx.conf \
+  --error-log-path=/opt/nginx/logs/error.log \
+  --http-log-path=/opt/nginx/logs/access.log \
   --with-debug \
   --with-http_auth_request_module
 RUN cd /tmp/nginx-${NGINX_VERSION} && make && make install
