@@ -8,20 +8,22 @@ ENV NGINX_LUA_MODULE_VERSION=0.10.8
 ENV LUAJIT_VERSION=2.0.5
 ENV FFMPEG_VERSION 3.3.1
 ENV LUAROCKS_VERSION 2.4.2
-
-ENV LUAJIT_LIB /usr/local/lib
-ENV LUAJIT_INC /usr/local/include/luajit-2.0
+ENV OPENRESTY_VERSION 1.11.2.3
 
 ENV NGINX_DEVEL_KIT ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ENV NGINX_RTMP_MODULE nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
 ENV NGINX_LUA_MODULE lua-nginx-module-${NGINX_LUA_MODULE_VERSION}
 ENV LUAROCKS luarocks-${LUAROCKS_VERSION}
+ENV OPENRESTY openresty-${OPENRESTY_VERSION}
+
+ENV LUAJIT_LIB /usr/local/lib
+ENV LUAJIT_INC /usr/local/include/luajit-2.0
 
 # Common dependencies
 ENV DEPS_COMMON="bash nano lua"
 
 # Common build tools
-ENV DEPS_BUILD_TOOLS="git unzip gcc binutils-libs binutils build-base libgcc make pkgconf pkgconfig openssl openssl-dev ca-certificates pcre nasm yasm yasm-dev coreutils musl-dev libc-dev pcre-dev zlib-dev lua-dev"
+ENV DEPS_BUILD_TOOLS="git perl unzip gcc binutils-libs binutils build-base libgcc make pkgconf pkgconfig openssl openssl-dev ca-certificates pcre nasm yasm yasm-dev coreutils musl-dev libc-dev pcre-dev zlib-dev lua-dev"
 
 # FFMPEG dependencies
 ENV DEPS_FFMPEG "gnutls-dev libogg-dev libvpx-dev libvorbis-dev freetype-dev libass-dev libwebp-dev rtmpdump-dev libtheora-dev lame-dev xvidcore-dev imlib2-dev x264-dev bzip2-dev perl-dev libvpx-dev sdl2-dev libxfixes-dev libva-dev alsa-lib-dev v4l-utils-dev opus-dev x265-dev"
@@ -49,6 +51,17 @@ RUN cd /tmp \
   && rm LuaJIT-${LUAJIT_VERSION}.tar.gz
 
 RUN cd /tmp/LuaJIT-${LUAJIT_VERSION} && make && make install
+
+# Build OpenResty.
+RUN cd /tmp \
+  && wget https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz -O ${OPENRESTY}.tar.gz \
+  && tar zxf ${OPENRESTY}.tar.gz \
+  && rm ${OPENRESTY}.tar.gz \
+  && cd ${OPENRESTY} \
+  && ./configure -j2 \
+  && make -j2 \
+  && make install
+RUN rm -rf /tmp/${OPENRESTY}
 
 # Get nginx source.
 RUN cd /tmp \

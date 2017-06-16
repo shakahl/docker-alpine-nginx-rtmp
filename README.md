@@ -9,6 +9,7 @@ default settings for HLS live streaming. Built on Alpine Linux.
 * Default HLS settings (See: [nginx.conf](nginx.conf))
 * LuaJIT 2.0.5 (compiled from source)
 * luarocks 2.4.2 (compiled from source)
+* OpenResty 1.11.2.3 (compiled from source)
 
 [![Docker Stars](https://img.shields.io/docker/stars/shakahl/docker-alpine-nginx-rtmp.svg)](https://hub.docker.com/r/shakahl/docker-alpine-nginx-rtmp/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shakahl/docker-alpine-nginx-rtmp.svg)](https://hub.docker.com/r/shakahl/docker-alpine-nginx-rtmp/)
