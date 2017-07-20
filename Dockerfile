@@ -28,6 +28,11 @@ ENV DEPS_BUILD_TOOLS="git perl unzip gcc binutils-libs binutils build-base libgc
 # FFMPEG dependencies
 ENV DEPS_FFMPEG "gnutls-dev libogg-dev libvpx-dev libvorbis-dev freetype-dev libass-dev libwebp-dev rtmpdump-dev libtheora-dev lame-dev xvidcore-dev imlib2-dev x264-dev bzip2-dev perl-dev libvpx-dev sdl2-dev libxfixes-dev libva-dev alsa-lib-dev v4l-utils-dev opus-dev x265-dev"
 
+# Updating certificates
+RUN apk update \
+  && apk add openssl ca-certificates \
+  && update-ca-certificates
+
 # Installing common dependencies
 RUN apk update && apk add --virtual .common-dependencies ${DEPS_COMMON}
 
@@ -54,7 +59,7 @@ RUN cd /tmp/LuaJIT-${LUAJIT_VERSION} && make && make install
 
 # Build OpenResty.
 RUN cd /tmp \
-  && wget https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz -O ${OPENRESTY}.tar.gz \
+  && wget http://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz -O ${OPENRESTY}.tar.gz \
   && tar zxf ${OPENRESTY}.tar.gz \
   && rm ${OPENRESTY}.tar.gz \
   && cd ${OPENRESTY} \
