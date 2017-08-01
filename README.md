@@ -5,7 +5,7 @@ default settings for HLS live streaming. Built on Alpine Linux.
 * Nginx 1.13.3 (compiled from source)
 * nginx-rtmp-module 1.2.0 (compiled from source)
 * lua-nginx-module 0.10.8 (compiled from source)
-* ffmpeg 3.3.1 (compiled from source)
+* ffmpeg 3.3.3 (compiled from source)
 * Default HLS settings (See: [nginx.conf](nginx.conf))
 * LuaJIT 2.0.5 (compiled from source)
 * luarocks 2.4.2 (compiled from source)

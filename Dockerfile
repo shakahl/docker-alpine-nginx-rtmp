@@ -6,7 +6,7 @@ ENV NGINX_DEVEL_KIT_VERSION=0.3.0
 ENV NGINX_RTMP_MODULE_VERSION 1.2.0
 ENV NGINX_LUA_MODULE_VERSION=0.10.8
 ENV LUAJIT_VERSION=2.0.5
-ENV FFMPEG_VERSION 3.3.1
+ENV FFMPEG_VERSION 3.3.3
 ENV LUAROCKS_VERSION 2.4.2
 ENV OPENRESTY_VERSION 1.11.2.3
 
@@ -162,7 +162,7 @@ RUN cd /tmp/ffmpeg-${FFMPEG_VERSION} && make && make install && make distclean
 #RUN apk del ${DEPS_FFMPEG} ${DEPS_NGINX}
 
 # Cleanup.
-RUN rm -rf /var/cache/* /tmp/*
+RUN rm -rf /tmp/*
 
 # Adding nginx configuration file
 ADD nginx.conf /opt/nginx/nginx.conf
