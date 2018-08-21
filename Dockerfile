@@ -1,14 +1,14 @@
 FROM alpine:3.4
 MAINTAINER Soma Szélpál <szelpalsoma@gmail.com>
 
-ENV NGINX_VERSION 1.13.3
+ENV NGINX_VERSION 1.15.2
 ENV NGINX_DEVEL_KIT_VERSION=0.3.0
-ENV NGINX_RTMP_MODULE_VERSION 1.2.0
-ENV NGINX_LUA_MODULE_VERSION=0.10.8
+ENV NGINX_RTMP_MODULE_VERSION 1.2.1
+ENV NGINX_LUA_MODULE_VERSION=0.10.13
 ENV LUAJIT_VERSION=2.0.5
-ENV FFMPEG_VERSION 3.3.3
-ENV LUAROCKS_VERSION 2.4.2
-ENV OPENRESTY_VERSION 1.11.2.3
+ENV FFMPEG_VERSION=4.0.2
+ENV LUAROCKS_VERSION=3.0.0
+ENV OPENRESTY_VERSION=1.13.6.1
 
 ENV NGINX_DEVEL_KIT ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ENV NGINX_RTMP_MODULE nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
@@ -93,9 +93,9 @@ RUN cd /tmp \
   && rm ${NGINX_LUA_MODULE}.tar.gz
 
 # patch nginx lua compilation error on nginx 1.13 (https://github.com/openresty/lua-nginx-module/issues/1016)
-ADD ./patch/patch-src-ngx_http_lua_headers.c.diff /tmp/
-RUN cd /tmp/${NGINX_LUA_MODULE}/src \
-  && patch < /tmp/patch-src-ngx_http_lua_headers.c.diff
+#ADD ./patch/patch-src-ngx_http_lua_headers.c.diff /tmp/
+#RUN cd /tmp/${NGINX_LUA_MODULE}/src \
+#  && patch < /tmp/patch-src-ngx_http_lua_headers.c.diff
 
 # Compile nginx with nginx-rtmp module.
 RUN cd /tmp/nginx-${NGINX_VERSION} \
